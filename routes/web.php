@@ -1,37 +1,57 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\AuthController;
-use Illuminate\Support\Facades\Auth;
 
-// Simple IMS routes (no auth). Root opens the products index directly.
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Routes for Inventory Management System
+| Laravel automatically loads this file via RouteServiceProvider.
+|
+*/
+
+// Root Route — safely handle logged-in and guest users
 Route::get('/', function () {
-    return Auth::check() ? view('dashboard') : redirect()->route('login');
+    if (Auth::check()) {
+        return view('dashboard');
+    }
+    // Show a welcome or landing page if user not logged in
+    return view('index'); // resources/views/index.blade.php
 });
 
-// Auth routes
+// ==========================
+// Auth Routes
+// ==========================
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Dashboard page (protected)
+// ==========================
+// Dashboard (Protected)
+// ==========================
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware('auth')->name('dashboard');
 
-// Protected resource routes
+// ==========================
+// Inventory Modules (Protected)
+// ==========================
 Route::middleware('auth')->group(function () {
     Route::resource('products', ProductController::class);
     Route::resource('suppliers', SupplierController::class);
-    // Sales routes with explicit ordering
+
+    // Sales routes
     Route::get('sales/report', [SalesReportController::class, 'index'])->name('sales.report');
     Route::get('sales/report/{period}', [SalesReportController::class, 'index'])->name('sales.report.period');
-    Route::resource('sales', SaleController::class)->only(['index','create','store','show']);
+    Route::resource('sales', SaleController::class)->only(['index', 'create', 'store', 'show']);
 });
-
