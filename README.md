@@ -114,3 +114,4 @@ This repository is a small Laravel application (project skeleton with products, 
 This project was developed for a standard Laravel workflow. The repo includes migrations and seeders under `database/migrations` and `database/seeders`.
 
 "# Inventory-Managemant-System-web" 
+"# Inventory-Managemant-System-web" 
